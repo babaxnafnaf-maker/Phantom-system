@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHANTOM SYSTEM // RPG Productivity</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,800;1,700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        phantom: {
+                            bg: '#050907',
+                            card: '#0D1612',
+                            cardHover: '#13201A',
+                            border: '#1B3328',
+                            green: '#00FF66',
+                            emerald: '#10B981',
+                            darkGreen: '#042914',
+                            accent: '#34D399',
+                            muted: '#6EE7B7'
+                        }
+                    },
+                    fontFamily: {
+                        teko: ['Teko', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Persona 5 Angular Styling & Glow Effects */
+        body {
+            background-color: #050907;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(0, 255, 102, 0.08) 0%, transparent 60%),
+                linear-gradient(rgba(0, 255, 102, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 102, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            color: #E2E8F0;
+            user-select: none;
+        }
+
+        .p5-skew {
+            transform: skew(-4deg);
+        }
+
+        .p5-skew-reverse {
+            transform: skew(4deg);
+        }
+
+        .p5-btn {
+            position: relative;
+            background: #00FF66;
+            color: #050907;
+            font-weight: 800;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+            transition: all 0.15s ease-in-out;
+        }
+
+        .p5-btn:hover {
+            background: #34D399;
+            transform: skew(-4deg) scale(1.03);
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.5);
+        }
+
+        .p5-btn:active {
+            transform: skew(-4deg) scale(0.97);
+        }
+
+        .p5-card {
+            background: #0D1612;
+            border: 1px solid #1B3328;
+            box-shadow: 4px 4px 0px #042914;
+            transition: all 0.2s ease;
+        }
+
+        .p5-card:hover {
+            border-color: #00FF66;
+            box-shadow: 6px 6px 0px rgba(0, 255, 102, 0.3);
+        }
+
+        .p5-title-badge {
+            background: #00FF66;
+            color: #050907;
+            clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050907;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1B3328;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00FF66;
+        }
+
+        /* Particle animations */
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+        }
+
+        .xp-particle {
+            position: fixed;
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+            font-family: 'Teko', sans-serif;
+            font-weight: 700;
+            color: #00FF66;
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.8), 2px 2px 0px #000;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans antialiased text-slate-100 pb-12">
+
+    <!-- TOP HEADER / STATS BAR -->
+    <header class="border-b border-phantom-border bg-phantom-bg/90 backdrop-blur sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+            
+            <!-- LOGO & LEVEL -->
+            <div class="flex items-center space-x-4">
+                <div class="p5-skew bg-phantom-green text-phantom-bg px-4 py-1 flex items-center gap-2">
+                    <i class="fa-solid font-bold fa-mask-ventilator text-lg"></i>
+                    <span class="font-teko text-2xl font-bold tracking-wider leading-none">PHANTOM SYSTEM</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xs text-phantom-muted uppercase font-semibold">Niveau Global</span>
+                    <span id="global-level-display" class="font-teko text-3xl font-bold leading-none text-phantom-green">LVL 1</span>
+                </div>
+            </div>
+
+            <!-- ACTIONS TOP -->
+            <div class="flex items-center gap-2">
+                <button onclick="openAIModal()" class="p5-btn px-4 py-2 text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>QUÊTE IA</span>
+                </button>
+                <button onclick="exportDailyReport()" class="bg-phantom-card hover:bg-phantom-cardHover text-phantom-green border border-phantom-border hover:border-phantom-green px-4 py-2 text-sm font-bold p5-skew flex items-center gap-2 transition-all">
+                    <i class="fa-solid fa-share-nodes"></i>
+                    <span class="p5-skew-reverse">RAPPORT GEMINI</span>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-6xl mx-auto px-4 mt-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN: STATS & RADAR CHART (5 cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            
+            <!-- RADAR CHART CARD -->
+            <div class="p5-card p-5 relative overflow-hidden rounded-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="p5-title-badge px-3 py-1 text-xs font-black uppercase p5-skew">
+                        <span class="p5-skew-reverse">PARAMÈTRES PSYCHIQUES</span>
+                    </div>
+                    <span class="text-xs text-phantom-muted font-mono"><i class="fa-solid fa-chart-pie mr-1"></i>RADAR RADIAL</span>
+                </div>
+
+                <!-- CANVAS RADAR -->
+                <div class="relative w-full aspect-square max-w-[320px] mx-auto flex items-center justify-center my-2">
+                    <canvas id="radarChart" width="300" height="300" class="w-full h-full"></canvas>
+                </div>
+
+                <div class="text-center text-xs text-slate-400 mt-1 italic">
+                    "Fais évoluer chaque facette de ta personne pour devenir inébranlable."
+                </div>
+            </div>
+
+            <!-- STATS DETAILED LIST -->
+            <div class="p5-card p-5 flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <div class="p5-title-badge px-3 py-1 text-xs font-black uppercase p5-skew">
+                        <span class="p5-skew-reverse">5 STATISTIQUES SOCIALES</span>
+                    </div>
+                    <span class="text-xs text-slate-400">RANG MAX : 5</span>
+                </div>
+
+                <div id="stats-container" class="flex flex-col gap-3">
+                    <!-- Stat items populated dynamically -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- RIGHT COLUMN: QUESTS & CONFIDANTS (7 cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
+            
+            <!-- TABS NAVIGATION -->
+            <div class="flex border-b border-phantom-border gap-2">
+                <button id="tab-btn-quests" onclick="switchTab('quests')" class="px-6 py-3 font-teko text-2xl font-bold tracking-wide border-b-2 border-phantom-green text-phantom-green bg-phantom-card/50 p5-skew transition-all">
+                    <span class="p5-skew-reverse flex items-center gap-2"><i class="fa-solid fa-list-check text-lg"></i> JOURNAL DE QUÊTES</span>
+                </button>
+                <button id="tab-btn-confidants" onclick="switchTab('confidants')" class="px-6 py-3 font-teko text-2xl font-bold tracking-wide border-b-2 border-transparent text-slate-400 hover:text-slate-200 bg-phantom-card/20 p5-skew transition-all">
+                    <span class="p5-skew-reverse flex items-center gap-2"><i class="fa-solid fa-users text-lg"></i> CONFIDENTS (<span id="confidant-count-badge">0</span>)</span>
+                </button>
+            </div>
+
+            <!-- TAB 1: QUEST LOG -->
+            <div id="tab-quests" class="flex flex-col gap-4">
+                
+                <!-- ADD QUEST FORM -->
+                <div class="p5-card p-4">
+                    <h3 class="font-teko text-xl font-bold text-phantom-green mb-3 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i> NOUVELLE OBJECTIF DU PALAIS
+                    </h3>
+                    <form id="add-quest-form" onsubmit="handleCreateQuest(event)" class="grid grid-cols-1 md:grid-cols-12 gap-3">
+                        <div class="md:col-span-6">
+                            <input type="text" id="quest-title" placeholder="Nom de la quête (ex: Réviser 20 min)" required class="w-full bg-phantom-bg border border-phantom-border focus:border-phantom-green text-sm px-3 py-2 outline-none text-slate-200 placeholder-slate-500 rounded-sm">
+                        </div>
+                        <div class="md:col-span-3">
+                            <select id="quest-stat" class="w-full bg-phantom-bg border border-phantom-border focus:border-phantom-green text-sm px-3 py-2 outline-none text-slate-200 rounded-sm">
+                                <option value="connaissance">Connaissance</option>
+                                <option value="creativite">Créativité</option>
+                                <option value="social">Social</option>
+                                <option value="vitalite">Vitalité</option>
+                                <option value="cran">Cran</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-3">
+                            <select id="quest-xp" class="w-full bg-phantom-bg border border-phantom-border focus:border-phantom-green text-sm px-3 py-2 outline-none text-slate-200 rounded-sm">
+                                <option value="10">+10 XP (Facile)</option>
+                                <option value="20">+20 XP (Moyen)</option>
+                                <option value="35">+35 XP (Difficile)</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-12 flex justify-end">
+                            <button type="submit" class="p5-btn px-5 py-1.5 text-xs">AJOUTER AU JOURNAL</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- QUEST LIST CONTAINER -->
+                <div class="flex items-center justify-between mt-2">
+                    <span class="text-xs font-bold text-phantom-muted uppercase tracking-wider">Quêtes Actives</span>
+                    <button onclick="clearCompletedQuests()" class="text-xs text-slate-400 hover:text-red-400 underline transition-colors">Nettoyer terminées</button>
+                </div>
+
+                <div id="quests-list" class="flex flex-col gap-3">
+                    <!-- Dynamic quests list -->
+                </div>
+
+            </div>
+
+            <!-- TAB 2: CONFIDANTS (LIENS SOCIAUX) -->
+            <div id="tab-confidants" class="hidden flex-col gap-4">
+                
+                <!-- ADD CONFIDANT FORM -->
+                <div class="p5-card p-4">
+                    <h3 class="font-teko text-xl font-bold text-phantom-green mb-3 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus"></i> NOUVEAU LIEN SOCIAL
+                    </h3>
+                    <form id="add-confidant-form" onsubmit="handleCreateConfidant(event)" class="grid grid-cols-1 md:grid-cols-12 gap-3">
+                        <div class="md:col-span-6">
+                            <input type="text" id="confidant-name" placeholder="Nom de l'ami / proche" required class="w-full bg-phantom-bg border border-phantom-border focus:border-phantom-green text-sm px-3 py-2 outline-none text-slate-200 placeholder-slate-500 rounded-sm">
+                        </div>
+                        <div class="md:col-span-6">
+                            <input type="text" id="confidant-arcana" placeholder="Arcane / Rôle (ex: Le Bateleur, Meilleur Pote)" required class="w-full bg-phantom-bg border border-phantom-border focus:border-phantom-green text-sm px-3 py-2 outline-none text-slate-200 placeholder-slate-500 rounded-sm">
+                        </div>
+                        <div class="md:col-span-12 flex justify-end">
+                            <button type="submit" class="p5-btn px-5 py-1.5 text-xs">ÉTABLIR LE PACTE</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- CONFIDANTS GRID -->
+                <div id="confidants-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Dynamic Confidants list -->
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- AI GENERATOR MODAL -->
+    <div id="ai-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="p5-card w-full max-w-lg p-6 relative">
+            <button onclick="closeAIModal()" class="absolute top-3 right-4 text-slate-400 hover:text-phantom-green text-xl font-bold">&times;</button>
+            
+            <div class="flex items-center gap-3 mb-4">
+                <div class="p5-title-badge px-3 py-1 text-sm font-black uppercase p5-skew">
+                    <span class="p5-skew-reverse">ORACLE IA GEMINI</span>
+                </div>
+                <span class="text-xs text-phantom-muted font-mono">ANALYSE PSYCHOLOGIQUE</span>
+            </div>
+
+            <p class="text-xs text-slate-300 mb-4 leading-relaxed">
+                L'IA va scanner ta statistique la plus faible et générer une mission d'infiltration spécifique pour rétablir ton équilibre.
+            </p>
+
+            <div id="ai-loading" class="hidden flex-col items-center justify-center py-8 gap-3">
+                <i class="fa-solid fa-circle-notch fa-spin text-3xl text-phantom-green"></i>
+                <span class="font-teko text-xl tracking-wide text-phantom-muted">CALCUL DES PROBABILITÉS D'INFILTRATION...</span>
+            </div>
+
+            <div id="ai-result" class="hidden flex-col gap-4 border border-phantom-border bg-phantom-bg p-4 mb-4">
+                <div class="flex items-center justify-between">
+                    <span id="ai-target-stat" class="text-xs font-extrabold uppercase text-phantom-green bg-phantom-darkGreen px-2 py-0.5 border border-phantom-border">STAT</span>
+                    <span id="ai-target-xp" class="text-xs font-mono font-bold text-phantom-accent">+20 XP</span>
+                </div>
+                <div>
+                    <h4 id="ai-quest-title" class="font-bold text-base text-slate-100"></h4>
+                    <p id="ai-quest-desc" class="text-xs text-slate-400 mt-1 leading-normal"></p>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <button onclick="closeAIModal()" class="px-4 py-2 text-xs font-bold text-slate-400 hover:text-white">ANNULER</button>
+                <button id="ai-generate-btn" onclick="generateAIQuest()" class="p5-btn px-5 py-2 text-xs">GÉNÉRER LA QUÊTE</button>
+                <button id="ai-accept-btn" onclick="acceptAIQuest()" class="hidden p5-btn px-5 py-2 text-xs">ACCEPTER LA MISSION</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS CONTAINER -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- SOUND SYNTHESIZER & SCRIPT LOGIC -->
+    <script>
+        /* ==========================================================================
+           STATE & CONFIGURATION
+           ========================================================================== */
+        const STAT_NAMES = {
+            connaissance: { label: "Connaissance", icon: "fa-book-open", desc: "Études, lecture, code et savoirs." },
+            creativite: { label: "Créativité", icon: "fa-palette", desc: "Projets personnels, écriture et art." },
+            social: { label: "Social", icon: "fa-comments", desc: "Relations, écoute et moments partagés." },
+            vitalite: { label: "Vitalité", icon: "fa-heart-pulse", desc: "Sommeil, marche, sport et santé." },
+            cran: { label: "Cran", icon: "fa-shield-halved", desc: "Zone de confort et courage d'agir." }
+        };
+
+        const INITIAL_STATE = {
+            globalLevel: 1,
+            stats: {
+                connaissance: { level: 1, xp: 0, maxXp: 50 },
+                creativite: { level: 1, xp: 0, maxXp: 50 },
+                social: { level: 1, xp: 0, maxXp: 50 },
+                vitalite: { level: 1, xp: 0, maxXp: 50 },
+                cran: { level: 1, xp: 0, maxXp: 50 }
+            },
+            quests: [
+                { id: 'q1', title: 'Prendre l\'air et marcher 15 min', stat: 'vitalite', xp: 15, completed: false },
+                { id: 'q2', title: 'Réviser un cours ou lire un article instructif', stat: 'connaissance', xp: 20, completed: false },
+                { id: 'q3', title: 'Prendre des nouvelles d\'un bon pote', stat: 'social', xp: 15, completed: false }
+            ],
+            confidants: [
+                { id: 'c1', name: 'Amis proches', arcana: 'Le Chariot', rank: 2 },
+                { id: 'c2', name: 'Mentor / Professeur', arcana: 'Le Hiérophante', rank: 1 }
+            ],
+            todayLogs: []
+        };
+
+        let state = JSON.parse(localStorage.getItem('phantom_system_state')) || INITIAL_STATE;
+        let currentAIQuestData = null;
+
+        /* ==========================================================================
+           AUDIO SYNTHESIZER (Web Audio API - No External Assets)
+           ========================================================================== */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSynthSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'xp') {
+                // High arpeggio chime
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.3); // C6
+
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'levelup') {
+                // Fanfare synth chord
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(554.37, now + 0.1);
+                osc.frequency.setValueAtTime(659.25, now + 0.2);
+                osc.frequency.setValueAtTime(880, now + 0.3);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+
+                osc.start(now);
+                osc.stop(now + 0.7);
+            }
+        }
+
+        /* ==========================================================================
+           LOCAL STORAGE & SAVE
+           ========================================================================== */
+        function saveState() {
+            localStorage.setItem('phantom_system_state', JSON.stringify(state));
+            renderAll();
+        }
+
+        /* ==========================================================================
+           RADAR CHART RENDERING (Canvas 2D)
+           ========================================================================== */
+        function drawRadarChart() {
+            const canvas = document.getElementById('radarChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = 105;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const keys = ['connaissance', 'creativite', 'social', 'vitalite', 'cran'];
+            const totalStats = keys.length;
+            const angleStep = (Math.PI * 2) / totalStats;
+            const startAngle = -Math.PI / 2; // Top angle
+
+            // Draw Web Grid (5 concentric pentagons)
+            for (let level = 1; level <= 5; level++) {
+                const r = (radius / 5) * level;
+                ctx.beginPath();
+                for (let i = 0; i < totalStats; i++) {
+                    const angle = startAngle + i * angleStep;
+                    const x = centerX + r * Math.cos(angle);
+                    const y = centerY + r * Math.sin(angle);
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.strokeStyle = level === 5 ? 'rgba(0, 255, 102, 0.4)' : 'rgba(27, 51, 40, 0.8)';
+                ctx.lineWidth = level === 5 ? 1.5 : 1;
+                ctx.stroke();
+            }
+
+            // Draw Axes lines & Labels
+            ctx.fillStyle = '#00FF66';
+            ctx.font = 'bold 11px "Plus Jakarta Sans", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (let i = 0; i < totalStats; i++) {
+                const angle = startAngle + i * angleStep;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = 'rgba(0, 255, 102, 0.2)';
+                ctx.stroke();
+
+                // Axis label
+                const labelRadius = radius + 22;
+                const lx = centerX + labelRadius * Math.cos(angle);
+                const ly = centerY + labelRadius * Math.sin(angle);
+                const statKey = keys[i];
+                const statInfo = state.stats[statKey];
+                
+                ctx.fillStyle = '#E2E8F0';
+                ctx.fillText(`${STAT_NAMES[statKey].label.toUpperCase()}`, lx, ly - 6);
+                ctx.fillStyle = '#00FF66';
+                ctx.fillText(`RNG ${statInfo.level}`, lx, ly + 7);
+            }
+
+            // Draw Current Player Stats Polygon
+            ctx.beginPath();
+            for (let i = 0; i < totalStats; i++) {
+                const statKey = keys[i];
+                const statInfo = state.stats[statKey];
+                // Max level capped at 5 for radar ratio
+                const ratio = Math.min(statInfo.level / 5, 1.0);
+                const r = radius * Math.max(ratio, 0.15); // Minimum shape radius for visibility
+                const angle = startAngle + i * angleStep;
+                const x = centerX + r * Math.cos(angle);
+                const y = centerY + r * Math.sin(angle);
+
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+
+            // Fill shape with glowing emerald gradient
+            const fillGrad = ctx.createRadialGradient(centerX, centerY, 5, centerX, centerY, radius);
+            fillGrad.addColorStop(0, 'rgba(0, 255, 102, 0.6)');
+            fillGrad.addColorStop(1, 'rgba(16, 185, 129, 0.25)');
+            ctx.fillStyle = fillGrad;
+            ctx.fill();
+
+            // Polygon Stroke
+            ctx.strokeStyle = '#00FF66';
+            ctx.lineWidth = 2.5;
+            ctx.shadowColor = '#00FF66';
+            ctx.shadowBlur = 8;
+            ctx.stroke();
+            ctx.shadowBlur = 0; // reset
+
+            // Draw Vertex Points
+            for (let i = 0; i < totalStats; i++) {
+                const statKey = keys[i];
+                const statInfo = state.stats[statKey];
+                const ratio = Math.min(statInfo.level / 5, 1.0);
+                const r = radius * Math.max(ratio, 0.15);
+                const angle = startAngle + i * angleStep;
+                const x = centerX + r * Math.cos(angle);
+                const y = centerY + r * Math.sin(angle);
+
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fill();
+                ctx.strokeStyle = '#00FF66';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        /* ==========================================================================
+           RENDER UI COMPONENTS
+           ========================================================================== */
+        function renderAll() {
+            // Update Global Level
+            let totalLevels = 0;
+            Object.values(state.stats).forEach(s => totalLevels += s.level);
+            state.globalLevel = Math.floor(totalLevels / 5);
+            document.getElementById('global-level-display').innerText = `LVL ${state.globalLevel}`;
+
+            // Render Stats List
+            const statsContainer = document.getElementById('stats-container');
+            statsContainer.innerHTML = '';
+
+            Object.keys(STAT_NAMES).forEach(key => {
+                const info = STAT_NAMES[key];
+                const statData = state.stats[key];
+                const percent = Math.min((statData.xp / statData.maxXp) * 100, 100);
+
+                const item = document.createElement('div');
+                item.className = 'bg-phantom-bg border border-phantom-border p-3 rounded-sm flex flex-col gap-2 hover:border-phantom-green/50 transition-all';
+                item.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 bg-phantom-darkGreen border border-phantom-border flex items-center justify-center text-phantom-green text-xs rounded-sm">
+                                <i class="fa-solid ${info.icon}"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm font-bold text-slate-100">${info.label}</span>
+                                <span class="text-[10px] text-slate-400 block">${info.desc}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-teko text-xl font-bold text-phantom-green leading-none">RANG ${statData.level}</span>
+                            <span class="text-[10px] text-slate-400 block font-mono">${statData.xp} / ${statData.maxXp} XP</span>
+                        </div>
+                    </div>
+                    <!-- XP BAR -->
+                    <div class="w-full bg-phantom-card h-2 border border-phantom-border overflow-hidden p-[1px]">
+                        <div class="bg-gradient-to-r from-emerald-600 to-phantom-green h-full transition-all duration-300" style="width: ${percent}%"></div>
+                    </div>
+                `;
+                statsContainer.appendChild(item);
+            });
+
+            // Draw Radar Chart
+            drawRadarChart();
+
+            // Render Quests List
+            const questsList = document.getElementById('quests-list');
+            questsList.innerHTML = '';
+
+            if (state.quests.length === 0) {
+                questsList.innerHTML = `
+                    <div class="text-center py-8 text-slate-500 text-xs italic bg-phantom-bg border border-phantom-border">
+                        Aucune quête en cours. Ajoute une mission ou utilise l'Oracle IA !
+                    </div>
+                `;
+            } else {
+                state.quests.forEach(q => {
+                    const statMeta = STAT_NAMES[q.stat];
+                    const qEl = document.createElement('div');
+                    qEl.className = `p5-card p-3 flex items-center justify-between gap-3 ${q.completed ? 'opacity-50 grayscale' : ''}`;
+                    qEl.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <button onclick="toggleQuest('${q.id}', event)" class="w-6 h-6 border ${q.completed ? 'bg-phantom-green border-phantom-green text-phantom-bg' : 'border-phantom-border hover:border-phantom-green text-transparent'} rounded-sm flex items-center justify-center transition-all">
+                                <i class="fa-solid fa-check text-xs font-black"></i>
+                            </button>
+                            <div>
+                                <span class="text-sm font-semibold text-slate-100 ${q.completed ? 'line-through' : ''}">${q.title}</span>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <span class="text-[10px] font-extrabold uppercase bg-phantom-darkGreen text-phantom-green px-1.5 py-0.2 border border-phantom-border">
+                                        <i class="fa-solid ${statMeta.icon} mr-1"></i>${statMeta.label}
+                                    </span>
+                                    <span class="text-[10px] font-mono font-bold text-phantom-accent">+${q.xp} XP</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="deleteQuest('${q.id}')" class="text-slate-600 hover:text-red-400 p-1 text-xs">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    `;
+                    questsList.appendChild(qEl);
+                });
+            }
+
+            // Render Confidants List
+            const confidantsGrid = document.getElementById('confidants-grid');
+            confidantsGrid.innerHTML = '';
+            document.getElementById('confidant-count-badge').innerText = state.confidants.length;
+
+            if (state.confidants.length === 0) {
+                confidantsGrid.innerHTML = `
+                    <div class="col-span-2 text-center py-8 text-slate-500 text-xs italic bg-phantom-bg border border-phantom-border">
+                        Aucun Lien Social enregistré. Établis des pactes avec tes proches !
+                    </div>
+                `;
+            } else {
+                state.confidants.forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = 'p5-card p-4 flex flex-col justify-between gap-3 relative overflow-hidden';
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="text-[10px] font-mono font-bold uppercase text-phantom-muted tracking-wider block">${c.arcana}</span>
+                                <h4 class="font-bold text-slate-100 text-base">${c.name}</h4>
+                            </div>
+                            <span class="p5-title-badge px-2 py-0.5 text-xs font-black p5-skew">
+                                <span class="p5-skew-reverse">RANG ${c.rank}</span>
+                            </span>
+                        </div>
+                        
+                        <!-- RANK STARS/PROGRESS -->
+                        <div class="flex items-center gap-1 my-1">
+                            ${Array.from({length: 10}).map((_, i) => `
+                                <div class="h-1.5 flex-1 ${i < c.rank ? 'bg-phantom-green shadow-[0_0_5px_#00FF66]' : 'bg-phantom-border'} rounded-xs"></div>
+                            `).join('')}
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2 border-t border-phantom-border/50">
+                            <button onclick="deleteConfidant('${c.id}')" class="text-xs text-slate-500 hover:text-red-400">Rupture</button>
+                            <button onclick="levelUpConfidant('${c.id}', event)" class="p5-btn px-3 py-1 text-[11px] font-black ${c.rank >= 10 ? 'opacity-40 cursor-not-allowed' : ''}">
+                                ${c.rank >= 10 ? 'MAX' : '+1 LIEN SOCIAL'}
+                            </button>
+                        </div>
+                    `;
+                    confidantsGrid.appendChild(card);
+                });
+            }
+        }
+
+        /* ==========================================================================
+           GAME MECHANICS (XP, QUESTS, CONFIDANTS)
+           ========================================================================== */
+        function addXP(statKey, amount, event) {
+            const stat = state.stats[statKey];
+            if (!stat) return;
+
+            stat.xp += amount;
+            
+            // Floating XP Text Particle Effect
+            if (event) {
+                createParticle(`+${amount} XP ${STAT_NAMES[statKey].label}`, event.clientX || window.innerWidth/2, event.clientY || window.innerHeight/2);
+            }
+
+            playSynthSound('xp');
+
+            // Level Up Check
+            if (stat.xp >= stat.maxXp) {
+                stat.xp -= stat.maxXp;
+                stat.level = Math.min(stat.level + 1, 5);
+                stat.maxXp = Math.floor(stat.maxXp * 1.5);
+                
+                playSynthSound('levelup');
+                showToast(`NIVEAU SUPÉRIEUR ! ${STAT_NAMES[statKey].label} passe Rang ${stat.level} !`, 'levelup');
+            } else {
+                showToast(`+${amount} XP en ${STAT_NAMES[statKey].label}`, 'xp');
+            }
+
+            // Log activity for daily export
+            state.todayLogs.push({
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                text: `+${amount} XP ${STAT_NAMES[statKey].label}`
+            });
+
+            saveState();
+        }
+
+        function toggleQuest(questId, event) {
+            const quest = state.quests.find(q => q.id === questId);
+            if (!quest) return;
+
+            quest.completed = !quest.completed;
+            if (quest.completed) {
+                addXP(quest.stat, quest.xp, event);
+            }
+            saveState();
+        }
+
+        function handleCreateQuest(e) {
+            e.preventDefault();
+            const titleInput = document.getElementById('quest-title');
+            const statInput = document.getElementById('quest-stat');
+            const xpInput = document.getElementById('quest-xp');
+
+            const newQuest = {
+                id: 'q_' + Date.now(),
+                title: titleInput.value.trim(),
+                stat: statInput.value,
+                xp: parseInt(xpInput.value, 10),
+                completed: false
+            };
+
+            state.quests.unshift(newQuest);
+            titleInput.value = '';
+            showToast('Nouvelle quête ajoutée au Journal !', 'info');
+            saveState();
+        }
+
+        function deleteQuest(questId) {
+            state.quests = state.quests.filter(q => q.id !== questId);
+            saveState();
+        }
+
+        function clearCompletedQuests() {
+            state.quests = state.quests.filter(q => !q.completed);
+            showToast('Quêtes terminées archivées.', 'info');
+            saveState();
+        }
+
+        function handleCreateConfidant(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('confidant-name');
+            const arcanaInput = document.getElementById('confidant-arcana');
+
+            const newConfidant = {
+                id: 'c_' + Date.now(),
+                name: nameInput.value.trim(),
+                arcana: arcanaInput.value.trim(),
+                rank: 1
+            };
+
+            state.confidants.push(newConfidant);
+            nameInput.value = '';
+            arcanaInput.value = '';
+            showToast(`Lien établi avec ${newConfidant.name} (${newConfidant.arcana}) !`, 'info');
+            saveState();
+        }
+
+        function levelUpConfidant(confidantId, event) {
+            const confidant = state.confidants.find(c => c.id === confidantId);
+            if (!confidant || confidant.rank >= 10) return;
+
+            confidant.rank += 1;
+            // Also reward Social XP
+            addXP('social', 20, event);
+
+            playSynthSound('levelup');
+            showToast(`LIEN SOCIAL APPROFONDI ! ${confidant.name} atteint le Rang ${confidant.rank} !`, 'levelup');
+            saveState();
+        }
+
+        function deleteConfidant(confidantId) {
+            state.confidants = state.confidants.filter(c => c.id !== confidantId);
+            saveState();
+        }
+
+        /* ==========================================================================
+           TAB NAVIGATION
+           ========================================================================== */
+        function switchTab(tabName) {
+            const btnQuests = document.getElementById('tab-btn-quests');
+            const btnConfidants = document.getElementById('tab-btn-confidants');
+            const tabQuests = document.getElementById('tab-quests');
+            const tabConfidants = document.getElementById('tab-confidants');
+
+            if (tabName === 'quests') {
+                tabQuests.classList.remove('hidden');
+                tabConfidants.classList.add('hidden');
+
+                btnQuests.className = 'px-6 py-3 font-teko text-2xl font-bold tracking-wide border-b-2 border-phantom-green text-phantom-green bg-phantom-card/50 p5-skew transition-all';
+                btnConfidants.className = 'px-6 py-3 font-teko text-2xl font-bold tracking-wide border-b-2 border-transparent text-slate-400 hover:text-slate-200 bg-phantom-card/20 p5-skew transition-all';
+            } else {
+                tabQuests.classList.add('hidden');
+                tabConfidants.classList.remove('hidden');
+
+                btnConfidants.className = 'px-6 py-3 font-teko text-2xl font-bold tracking-wide border-b-2 border-phantom-green text-phantom-green bg-phantom-card/50 p5-skew transition-all';
+                btnQuests.className = 'px-6 py-3 font-teko text-2xl font-bold tracking-wide border-b-2 border-transparent text-slate-400 hover:text-slate-200 bg-phantom-card/20 p5-skew transition-all';
+            }
+        }
+
+        /* ==========================================================================
+           GEMINI AI INTEGRATION (AI QUEST GENERATOR)
+           ========================================================================== */
+        function openAIModal() {
+            document.getElementById('ai-modal').classList.remove('hidden');
+            document.getElementById('ai-result').classList.add('hidden');
+            document.getElementById('ai-loading').classList.add('hidden');
+            document.getElementById('ai-generate-btn').classList.remove('hidden');
+            document.getElementById('ai-accept-btn').classList.add('hidden');
+        }
+
+        function closeAIModal() {
+            document.getElementById('ai-modal').classList.add('hidden');
+        }
+
+        // Find lowest stat to balance player stats
+        function getLowestStatKey() {
+            let lowestKey = 'connaissance';
+            let lowestVal = Infinity;
+            Object.keys(state.stats).forEach(k => {
+                const totalScore = state.stats[k].level * 100 + state.stats[k].xp;
+                if (totalScore < lowestVal) {
+                    lowestVal = totalScore;
+                    lowestKey = k;
+                }
+            });
+            return lowestKey;
+        }
+
+        async function generateAIQuest() {
+            const lowestStat = getLowestStatKey();
+            const statMeta = STAT_NAMES[lowestStat];
+
+            document.getElementById('ai-generate-btn').classList.add('hidden');
+            document.getElementById('ai-loading').classList.remove('hidden');
+            document.getElementById('ai-loading').classList.add('flex');
+
+            const systemPrompt = "Tu es Igor / Morgana dans un système RPG style Persona 5. Génère une seule quête quotidienne concrète, stimulante et faisable en moins de 30 min pour développer une statistique spécifique d'un adolescent/étudiant. Tu dois répondre EXCLUSIVEMENT sous forme de JSON valide avec les clés 'title' (nom accrocheur de la quête) et 'description' (brève explication motivante).";
+            
+            const userQuery = `Génère une quête ciblée sur la statistique sociale '${statMeta.label}' (description : ${statMeta.desc}). Le ton doit être immersif et dynamique.`;
+
+            const apiKey = ""; // Canvas runtime populates standard key if left blank
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            title: { type: "STRING" },
+                            description: { type: "STRING" }
+                        },
+                        required: ["title", "description"]
+                    }
+                }
+            };
+
+            try {
+                // Exponential backoff fetch logic
+                let response = null;
+                let delay = 1000;
+                for (let i = 0; i < 3; i++) {
+                    try {
+                        const res = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (res.ok) {
+                            response = res;
+                            break;
+                        }
+                    } catch (e) {
+                        // retry silent
+                    }
+                    await new Promise(r => setTimeout(r, delay));
+                    delay *= 2;
+                }
+
+                if (!response) throw new Error("Erreur de connexion API");
+
+                const data = await response.json();
+                const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!jsonText) throw new Error("Format de réponse invalide");
+
+                const parsed = JSON.parse(jsonText);
+
+                currentAIQuestData = {
+                    title: parsed.title,
+                    desc: parsed.description,
+                    stat: lowestStat,
+                    xp: 25
+                };
+
+                // Display Result UI
+                document.getElementById('ai-loading').classList.add('hidden');
+                document.getElementById('ai-loading').classList.remove('flex');
+                
+                document.getElementById('ai-target-stat').innerText = statMeta.label.toUpperCase();
+                document.getElementById('ai-target-xp').innerText = '+25 XP';
+                document.getElementById('ai-quest-title').innerText = parsed.title;
+                document.getElementById('ai-quest-desc').innerText = parsed.description;
+
+                document.getElementById('ai-result').classList.remove('hidden');
+                document.getElementById('ai-result').classList.add('flex');
+                document.getElementById('ai-accept-btn').classList.remove('hidden');
+
+            } catch (err) {
+                document.getElementById('ai-loading').classList.add('hidden');
+                document.getElementById('ai-generate-btn').classList.remove('hidden');
+                showToast("L'Oracle n'a pas pu joindre le Metavers. Réessaie !", 'info');
+            }
+        }
+
+        function acceptAIQuest() {
+            if (!currentAIQuestData) return;
+
+            const newQuest = {
+                id: 'q_ai_' + Date.now(),
+                title: currentAIQuestData.title,
+                stat: currentAIQuestData.stat,
+                xp: currentAIQuestData.xp,
+                completed: false
+            };
+
+            state.quests.unshift(newQuest);
+            saveState();
+            closeAIModal();
+            showToast("Quête de l'Oracle ajoutée à ton Journal !", 'levelup');
+        }
+
+        /* ==========================================================================
+           EXPORT DAILY REPORT TO CLIPBOARD (GEMINI COPY-PASTE)
+           ========================================================================== */
+        function exportDailyReport() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+            let report = `### 📖 JOURNAL DE BORD PHANTOM SYSTEM (${dateStr.toUpperCase()})\n\n`;
+            report += `* **Niveau Global :** LVL ${state.globalLevel}\n`;
+            report += `* **Statistiques Sociales actuelles :**\n`;
+            Object.keys(state.stats).forEach(k => {
+                const s = state.stats[k];
+                report += `  - ${STAT_NAMES[k].label} : Rang ${s.level} (${s.xp}/${s.maxXp} XP)\n`;
+            });
+
+            report += `\n* **Quêtes accomplies aujourd'hui :**\n`;
+            const completed = state.quests.filter(q => q.completed);
+            if (completed.length === 0) {
+                report += `  - Aucune quête validée pour l'instant.\n`;
+            } else {
+                completed.forEach(q => {
+                    report += `  - [x] ${q.title} (+${q.xp} XP ${STAT_NAMES[q.stat].label})\n`;
+                });
+            }
+
+            report += `\n* **Liens Sociaux (Confidents) :**\n`;
+            state.confidants.forEach(c => {
+                report += `  - ${c.name} (${c.arcana}) : Rang ${c.rank}/10\n`;
+            });
+
+            report += `\n--- \n*Rapport prêt à être collé dans la conversation avec Gemini pour faire le point sur ta journée !*`;
+
+            // Copy to clipboard using execCommand fallback
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = report;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            showToast("Rapport du jour copié dans le presse-papiers !", "levelup");
+        }
+
+        /* ==========================================================================
+           UI UTILITIES (TOASTS & PARTICLES)
+           ========================================================================== */
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const borderCol = type === 'levelup' ? 'border-phantom-green' : 'border-phantom-border';
+            const bgCol = type === 'levelup' ? 'bg-phantom-darkGreen' : 'bg-phantom-card';
+            
+            toast.className = `p5-card ${bgCol} border ${borderCol} text-slate-100 px-4 py-3 rounded-sm text-xs font-bold flex items-center gap-3 shadow-lg p5-skew pointer-events-auto transition-all duration-300 transform translate-y-4 opacity-0`;
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'levelup' ? 'fa-crown text-phantom-green text-sm' : 'fa-circle-info text-phantom-accent'}"></i>
+                <span class="p5-skew-reverse">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function createParticle(text, x, y) {
+            const p = document.createElement('div');
+            p.className = 'xp-particle';
+            p.innerText = text;
+            p.style.left = `${x - 40}px`;
+            p.style.top = `${y - 20}px`;
+            document.body.appendChild(p);
+
+            setTimeout(() => p.remove(), 800);
+        }
+
+        /* ==========================================================================
+           INITIALIZATION ON LOAD
+           ========================================================================== */
+        window.onload = function() {
+            renderAll();
+
+            // Resize canvas on window resize
+            window.addEventListener('resize', () => {
+                drawRadarChart();
+            });
+        };
+    </script>
+</body>
+</html>
